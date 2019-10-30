@@ -4,6 +4,9 @@
 	<groupId>scala-cluster</groupId>
 	<artifactId>scala-cluster-full</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<modules>
+		<module>scala-simple-flink</module>
+	</modules>
 	<name>${project.artifactId}</name>
 	<description>My wonderfull scala app</description>
 	<inceptionYear>2015</inceptionYear>
@@ -25,14 +28,13 @@
 		<scala.compat.version>2.11</scala.compat.version>
 	</properties>
 
+	<!--
 	<dependencies>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
 			<version>${scala.version}</version>
 		</dependency>
-
-		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -52,14 +54,15 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+ -->
 
+	<!--
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<!-- see http://davidb.github.com/scala-maven-plugin -->
 					<groupId>net.alchim31.maven</groupId>
 					<artifactId>scala-maven-plugin</artifactId>
 					<version>3.2.0</version>
@@ -86,8 +89,6 @@
 					<configuration>
 						<useFile>false</useFile>
 						<disableXmlReport>true</disableXmlReport>
-						<!-- If you have classpath issue like NoDefClassError,... -->
-						<!-- useManifestOnlyJar>false</useManifestOnlyJar -->
 						<includes>
 							<include>**/*Test.*</include>
 							<include>**/*Suite.*</include>
@@ -97,5 +98,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	-->
 	<packaging>pom</packaging>
 </project>
