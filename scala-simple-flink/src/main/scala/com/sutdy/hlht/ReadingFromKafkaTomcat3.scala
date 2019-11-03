@@ -8,7 +8,9 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
-import org.apache.kafka.common.serialization.ByteArraySerializer
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.serialization.{ByteArraySerializer, StringDeserializer, StringSerializer}
 
 /**
   *  flink消费kafka的tomcat日志，清洗后，推送kafka
@@ -60,9 +62,12 @@ object ReadingFromKafkaTomcat3 {
     // sind到kafka
     val sinkP = new Properties()
     sinkP.setProperty("bootstrap.servers", "localhost:9092")
-    sinkP.setProperty("key.serializer", classOf[ByteArraySerializer].getName)
-    sinkP.setProperty("value.serializer", classOf[ByteArraySerializer].getName)
-    val sink = new FlinkKafkaProducer[String](KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema(),sinkP)
+//    sinkP.setProperty("key.serializer", classOf[StringDeserializer].getName)
+    sinkP.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
+//    sinkP.setProperty("value.serializer", classOf[StringDeserializer].getName)
+    sinkP.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[ByteArraySerializer].getName)
+//    val sink = new FlinkKafkaProducer[String](KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema(),sinkP)
+    val sink = new FlinkKafkaProducer[String]("localhost:9092",KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema())
     textRslt.addSink(sink)
 
     env.execute("flink-tomcat-kafka-3")
