@@ -40,19 +40,26 @@ object ReadingFromKafkaTomcat3 {
     val transaction:DataStream[String] = env.addSource(new FlinkKafkaConsumer[String](KAFKA_TOMCAT_TOPIC_NAME, new SimpleStringSchema(), kafkaProps))
 
     val textRslt:DataStream[String] = transaction.map(x=> {
-      val arr = StringUtils.split(x," ")
       val json = new JSONObject()
-      json.put("message",x)
-      json.put("date",arr(0)+" "+arr(1))
-      json.put("client_id",arr(8))
-      json.put("method",arr(9))
-      json.put("url",arr(10))
+      try {
+        val arr = StringUtils.split(x," ")
+        json.put("message",x)
+        json.put("date",arr(0)+" "+arr(1))
+        json.put("client_id",arr(8))
+        json.put("method",arr(9))
+        json.put("url",arr(10))
 
-      val map:Map[String,String] = getIp(arr(10))
-      if(map.nonEmpty) {
-        json.put("protocol" , map.get("protocol").get)
-        json.put("authority" , map.get("authority").get)
-        json.put("path" , map.get("path").get)
+        val map:Map[String,String] = getIp(arr(10))
+        if(map.nonEmpty) {
+          json.put("protocol" , map.get("protocol").get)
+          json.put("authority" , map.get("authority").get)
+          json.put("path" , map.get("path").get)
+        }
+      }catch  {
+        case e:Exception => {
+          json.put("errMsg",e.toString)
+          e.printStackTrace()
+        }
       }
       json.toJSONString
     })
@@ -60,14 +67,11 @@ object ReadingFromKafkaTomcat3 {
     textRslt.print("kafka-sink")
 
     // sind到kafka
-    val sinkP = new Properties()
-    sinkP.setProperty("bootstrap.servers", "localhost:9092")
-//    sinkP.setProperty("key.serializer", classOf[StringDeserializer].getName)
-    sinkP.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
-//    sinkP.setProperty("value.serializer", classOf[StringDeserializer].getName)
-    sinkP.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[ByteArraySerializer].getName)
-//    val sink = new FlinkKafkaProducer[String](KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema(),sinkP)
-    val sink = new FlinkKafkaProducer[String]("localhost:9092",KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema())
+//    val sinkP = new Properties()
+//    sinkP.setProperty("bootstrap.servers", KAFKA_BROKER)
+//    sinkP.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
+//    sinkP.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
+    val sink = new FlinkKafkaProducer[String](KAFKA_BROKER,KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema())
     textRslt.addSink(sink)
 
     env.execute("flink-tomcat-kafka-3")
