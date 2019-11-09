@@ -5,12 +5,9 @@ import java.util.Properties
 import com.alibaba.fastjson.JSONObject
 import org.apache.commons.lang3.StringUtils
 import org.apache.flink.api.common.serialization.SimpleStringSchema
-import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.ProducerConfig
-import org.apache.kafka.common.serialization.{ByteArraySerializer, StringDeserializer, StringSerializer}
 
 /**
   *  flink消费kafka的tomcat日志，清洗后，推送kafka
@@ -66,11 +63,6 @@ object ReadingFromKafkaTomcat3 {
     transaction.print("tomcat-source")
     textRslt.print("kafka-sink")
 
-    // sind到kafka
-//    val sinkP = new Properties()
-//    sinkP.setProperty("bootstrap.servers", KAFKA_BROKER)
-//    sinkP.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
-//    sinkP.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
     val sink = new FlinkKafkaProducer[String](KAFKA_BROKER,KAFKA_ELK_TOPIC_NAME,new SimpleStringSchema())
     textRslt.addSink(sink)
 
