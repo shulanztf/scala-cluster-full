@@ -21,8 +21,8 @@ class UocAuthserverLogPrint {
 object UocAuthserverLogPrint {
 
   private val ZOOKEEPER_HOST = "localhost:2181"
-  private val KAFKA_BROKER_CONSUMER = "localhost:9092"
-  private val KAFKA_BROKER_PRODUCER = "localhost:9092"
+  private val KAFKA_BROKER_CONSUMER = "localhost:31001"
+  private val KAFKA_BROKER_PRODUCER = "localhost:31001"
   private val TRANSACTION_GROUP_ID = "test-consumer-group-flink"
   private val KAFKA_TOMCAT_TOPIC_NAME = "uoc-authserver-to-kafka"
   private val KAFKA_ELK_TOPIC_NAME = "uoc-kafka-to-elk"
@@ -45,13 +45,13 @@ object UocAuthserverLogPrint {
 
     val textResult: DataStream[String] = transaction.filter(x=>{StringUtils.contains(x,PREFIX_WORD)}) // 只接收有[UOCLOGPRINT]的日志
       .map(x => {
-      println("初始数据:",x)
       val json = new JSONObject()
       try {
-        val text = JSON.parseObject(x).getString("message")
-        println("message:",text)
+        val tmpJson = JSON.parseObject(x);
+        val text = tmpJson.getString("message")
         val arr = StringUtils.split(text, " ")
         json.put("message", text)
+        json.put("tags", tmpJson.getString("tags"))
         json.put("request-time", arr(0) + " " + arr(1))
         json.put("client-id", arr(8))
         json.put("method", arr(9))
