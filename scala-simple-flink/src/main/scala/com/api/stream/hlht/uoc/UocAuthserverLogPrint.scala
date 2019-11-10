@@ -52,8 +52,8 @@ object UocAuthserverLogPrint {
         println("message:",text)
         val arr = StringUtils.split(text, " ")
         json.put("message", text)
-        json.put("date", arr(0) + " " + arr(1))
-        json.put("client_id", arr(8))
+        json.put("request-time", arr(0) + " " + arr(1))
+        json.put("client-id", arr(8))
         json.put("method", arr(9))
         json.put("url", arr(10))
 
