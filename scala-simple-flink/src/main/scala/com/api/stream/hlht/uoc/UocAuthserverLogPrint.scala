@@ -5,9 +5,11 @@ import java.util.Properties
 import com.alibaba.fastjson.{JSON, JSONObject}
 import org.apache.commons.lang3.StringUtils
 import org.apache.flink.api.common.serialization.SimpleStringSchema
+import org.apache.flink.shaded.guava18.com.google.common.base.Throwables
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
+import org.slf4j.{Logger, LoggerFactory}
 
 class UocAuthserverLogPrint {
 }
@@ -19,6 +21,7 @@ class UocAuthserverLogPrint {
   * @date 2019/11/9/009 18:06
   */
 object UocAuthserverLogPrint {
+  val logger: Logger = LoggerFactory.getLogger(UocAuthserverLogPrint.getClass)
 
   private val ZOOKEEPER_HOST = "localhost:2181"
   private val KAFKA_BROKER_CONSUMER = "localhost:31001"
@@ -66,7 +69,7 @@ object UocAuthserverLogPrint {
       } catch {
         case e: Exception => {
           json.put("errMsg", e.toString)
-          e.printStackTrace()
+          logger.error("get ip error:{}", Throwables.getStackTraceAsString(e))
         }
       }
       json.toJSONString
@@ -95,7 +98,7 @@ object UocAuthserverLogPrint {
       map += ("path" -> url1.getPath)
     } catch {
       case ex: Exception => {
-        ex.printStackTrace()
+        logger.error("解析http url error:{}", Throwables.getStackTraceAsString(ex))
       }
     }
     map

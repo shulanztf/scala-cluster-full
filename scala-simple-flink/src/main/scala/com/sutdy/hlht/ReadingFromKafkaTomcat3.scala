@@ -3,11 +3,14 @@ package com.sutdy.hlht
 import java.util.Properties
 
 import com.alibaba.fastjson.JSONObject
+import com.api.stream.hlht.uoc.UocAuthserverLogPrint.logger
 import org.apache.commons.lang3.StringUtils
 import org.apache.flink.api.common.serialization.SimpleStringSchema
+import org.apache.flink.shaded.guava18.com.google.common.base.Throwables
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
   *  flink消费kafka的tomcat日志，清洗后，推送kafka
@@ -15,6 +18,7 @@ import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKaf
   * @date 2019/10/30/030 15:45
   */
 object ReadingFromKafkaTomcat3 {
+  val logger: Logger = LoggerFactory.getLogger(ReadingFromKafkaTomcat3.getClass)
 
   private val ZOOKEEPER_HOST = "localhost:2181"
   private val KAFKA_BROKER = "localhost:9092"
@@ -55,7 +59,7 @@ object ReadingFromKafkaTomcat3 {
       }catch  {
         case e:Exception => {
           json.put("errMsg",e.toString)
-          e.printStackTrace()
+          logger.error("get ip error:{}", Throwables.getStackTraceAsString(e))
         }
       }
       json.toJSONString
@@ -78,7 +82,7 @@ object ReadingFromKafkaTomcat3 {
       map += ("path" -> url1.getPath)
     }catch  {
       case ex:Exception => {
-        ex.printStackTrace()
+        logger.error("解析http url error:{}", Throwables.getStackTraceAsString(ex))
       }
     }
     map
