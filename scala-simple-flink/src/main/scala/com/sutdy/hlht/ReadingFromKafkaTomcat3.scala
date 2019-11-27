@@ -5,7 +5,11 @@ import java.util.Properties
 import com.alibaba.fastjson.JSONObject
 import com.api.stream.hlht.uoc.UocAuthserverLogPrint.logger
 import org.apache.commons.lang3.StringUtils
+import org.apache.flink.api.common.accumulators.IntCounter
+import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.api.common.serialization.SimpleStringSchema
+import org.apache.flink.api.scala.ExecutionEnvironment
+import org.apache.flink.configuration.Configuration
 import org.apache.flink.shaded.guava18.com.google.common.base.Throwables
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
@@ -88,4 +92,40 @@ object ReadingFromKafkaTomcat3 {
     map
   }
 
+}
+
+
+
+/**
+  * Flink的累加器使用
+  */
+object CounterBatch {
+  def main(args: Array[String]): Unit = {
+    val env = ExecutionEnvironment.getExecutionEnvironment
+    import org.apache.flink.api.scala._
+    val text = env.fromElements("Hello Jason What are you doing Hello world")
+    val counts = text
+      .flatMap(_.toLowerCase.split(" "))
+      .map(new RichMapFunction[String, String] {
+        //创建累加器
+        val acc = new IntCounter()
+        override def open(parameters: Configuration): Unit = {
+          super.open(parameters)
+          //注册累加器
+          getRuntimeContext.addAccumulator("accumulator", acc)
+        }
+        override def map(in: String): String = {
+          //使用累加器
+          this.acc.add(1)
+          in
+        }
+      }).map((_,1))
+      .groupBy(0)
+      .sum(1)
+    counts.writeAsText("/data/flink/conunter-test.txt/").setParallelism(1)
+    val res = env.execute("Accumulator Test")
+    //获取累加器的结果
+    val num = res.getAccumulatorResult[Int]("accumulator")
+    println(num)
+  }
 }
