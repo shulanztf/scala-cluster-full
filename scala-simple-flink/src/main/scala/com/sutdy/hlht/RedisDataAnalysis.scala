@@ -2,7 +2,7 @@ package com.sutdy.hlht
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
-import org.apache.flink.api.common.accumulators.IntCounter
+import org.apache.flink.api.common.accumulators.{IntCounter, LongCounter}
 import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.configuration.Configuration
@@ -59,24 +59,44 @@ object RedisDataAnalysis {
       }
     })
 
+
+//    val memoryUseSpace = new LongCounter() //内存占用总量
+
     //    各种key数量统计
     val keyWordCount: DataSet[(String, Int)] = dataSource.map(x => {
       (x._1, 1)
     }).groupBy(0).sum(1)
     keyWordCount.print()
     //    各种key内存大小统计
-    val keyMemorySize: DataSet[(String, Long)] = dataSource.map(x => {
-      if (NumberUtils.isNumber(x._2)) {
-        (x._1, x._2.toLong)
-      } else {
-        (x._1, 0L)
+    val keyMemorySize: DataSet[(String, Long)] = dataSource
+    .map(x => {
+        if (NumberUtils.isNumber(x._2)) {
+          (x._1, x._2.toLong)
+        } else {
+          (x._1, 0L)
+        }
+    }).map(new RichMapFunction[(String,Long),(String,Long)] {
+      //创建累加器
+      val memorySize = new LongCounter()
+
+      override def open(parameters: Configuration): Unit = {
+        super.open(parameters)
+        //注册累加器
+        getRuntimeContext.addAccumulator("memory-size-accumulator", memorySize)
       }
-    }).groupBy(0).sum(1)
+      override def map(value: (String, Long)): (String, Long) = {
+        this.memorySize.add(value._2)
+        (value._1,value._2)
+      }
+    })
+
+      .groupBy(0).sum(1)
     keyMemorySize.print() //触发执行，获取累加结果
 
     // 获取累加数据，键总和
     val res = env.getLastJobExecutionResult
     val num = res.getAccumulatorResult[Int]("accumulator")
+    val memorySeze = res.getAccumulatorResult[Long]("memory-size-accumulator")
 
     // 合并两个流
     val keyTotal1: DataSet[(String, Int, Long, Int)] = keyWordCount.join(keyMemorySize) //
@@ -91,26 +111,12 @@ object RedisDataAnalysis {
     //    }) // 输出项配置,flatMap算子实现
     keyTotal1.print()
 
-    //    println("----------------------------")
-    //        println(num)
-    //    val keyTotal2:DataSet[(String,Int,Int,Long)] = keyTotal1.map(obj => {
-    //      (obj._1,num,obj._2,obj._3)
-    //    })
-    //    keyTotal2.print()
+    println("aaa",memorySeze)
 
-    //      val keyTotal:DataSet[(String,Int,Long)] = dataSource.map(x => {
-    //        if(NumberUtils.isNumber(x._2)) {
-    //          (x._1,1,x._2.toLong)
-    //        }else {
-    //          (x._1,1,0L)
-    //        }
-    //      }).groupBy(0).sum(1).sum(2)
-    //    keyTotal.print()
-
-    val result = keyTotal1
-    val outFilePath = "file:///data/flink/hlht/redis-key-count-" + System.currentTimeMillis()
-    result.writeAsText(outFilePath).setParallelism(1) // 放在一个分区，避免多个文件
-    env.execute("RedisDataAnalysis") // 执行作业
+//    val result = keyTotal1
+//    val outFilePath = "file:///data/flink/hlht/redis-key-count-" + System.currentTimeMillis()
+//    result.writeAsText(outFilePath).setParallelism(1) // 放在一个分区，避免多个文件
+//    env.execute("RedisDataAnalysis") // 执行作业
   }
 
   def getElementByIndex(arr: Array[String], index: Int): String = {
