@@ -14,7 +14,7 @@ object LogisticRegression03 {
     val spark = SparkSession.builder().config(conf).appName("LinearRegression").getOrCreate()
     import spark.implicits._
     val data = spark.read.format("libsvm")
-      .load("data/线性不可分数据集.txt")
+      .load("scala-simple-machine-learn/data/线性不可分数据集.txt")
 
       //升高维度
       .rdd
