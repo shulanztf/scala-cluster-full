@@ -26,7 +26,7 @@ object SparkSessionBase {
 
     val enableHive = prop.getProperty("enable.hive.support", "false").toBoolean
     if (enableHive) {
-      SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
+      SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()//支持hive操作
     } else {
       SparkSession.builder().config(conf).getOrCreate()
     }
