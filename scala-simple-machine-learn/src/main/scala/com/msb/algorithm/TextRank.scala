@@ -7,7 +7,7 @@ import scala.util.control.Breaks._
   * TextRank类，处理关键词的上下文语义，可参照PageRank
   */
 class TextRank extends Serializable {
-  var numKeyword: Int = 10
+  var numKeyword: Int = 10 //窗口大小
   /* 关键词个数 */
   var d: Double = 0.85f
   /* 阻尼系数 */
