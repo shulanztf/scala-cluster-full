@@ -1,0 +1,42 @@
+
+1
+-- 数据特征化查询SQL 1
+-- 积分的记录 LinkPointsRecord link_points_record
+SELECT t1.id,t1.created_at, t.created_at,t.* 
+from link_points_record t 
+LEFT JOIN  link_points_record  t1 on t1.id >= t.id 
+                          and t1.created_at >= t.created_at
+                          and t1.created_at < date_add(t.created_at, interval 10 second)
+where 1=1
+and t.member_id = 136654320139
+ORDER BY t.id DESC
+LIMIT 100
+;
+
+-- 数据特征化查询SQL 2
+
+2 数据算法
+2.1 逻辑回归
+2.2 决策树
+2.3 贝叶斯
+2.4 K近邻（K-nearest neighbors, KNN） 
+
+https://blog.csdn.net/hjh00/article/details/72801010?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
+	Spark MLlib 入门学习笔记 - 逻辑回归
+
+https://blog.csdn.net/kwu_ganymede/article/details/52040392?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
+	Spark-MLlib实例——决策树
+
+https://www.cnblogs.com/itboys/p/8312894.html			Spark2.0机器学习系列之3：决策树
+
+
+
+
+
+
+
+
+
+
+
+	
