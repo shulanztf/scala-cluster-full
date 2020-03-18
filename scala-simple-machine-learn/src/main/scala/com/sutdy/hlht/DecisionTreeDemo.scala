@@ -18,15 +18,19 @@ object DecisionTreeDemo {
 
   def main(args: Array[String]) {
 
-    val conf = new SparkConf().setAppName("DecisionTree").setMaster("local")
+    val conf = new SparkConf().setAppName("DecisionTreeDemo").setMaster("local")
     val sc = new SparkContext(conf)
     Logger.getRootLogger.setLevel(Level.WARN)
 
+    /**
+      * 字段说明：
+      * 是否见面, 年龄  是否帅  收入(1 高 2 中等 0 少)  是否公务员
+      */
     //训练数据
-    val data1 = sc.textFile("data/Tree1.txt")
+    val data1 = sc.textFile("D:\\data\\spark\\data\\DecisionTreeDemo-data-1.txt")
 
     //测试数据
-    val data2 = sc.textFile("data/Tree2.txt")
+    val data2 = sc.textFile("D:\\data\\spark\\data\\DecisionTreeDemo-data-2.txt")
 
 
     //转换成向量
@@ -75,7 +79,6 @@ object DecisionTreeDemo {
     println("Test Error = " + testErr)
     //打印树的判断值
     println("Learned classification tree model:\n" + model.toDebugString)
-
   }
 
 }

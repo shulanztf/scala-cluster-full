@@ -1,5 +1,7 @@
 
-1
+1 数据特征化
+* 不同的算法，数据可能会不一样；
+
 -- 数据特征化查询SQL 1
 -- 积分的记录 LinkPointsRecord link_points_record
 SELECT t1.id,t1.created_at, t.created_at,t.* 
@@ -19,7 +21,8 @@ LIMIT 100
 2.1 逻辑回归
 2.2 决策树
 2.3 贝叶斯
-2.4 K近邻（K-nearest neighbors, KNN） 
+2.4 K近邻（K-nearest neighbors, KNN）   暂不使用，无spark成熟示例
+2.5 支持向量机（SVM）， SVC=Support Vector Classification就是支持向量机用于分类
 
 https://blog.csdn.net/hjh00/article/details/72801010?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
 	Spark MLlib 入门学习笔记 - 逻辑回归
@@ -30,13 +33,20 @@ https://blog.csdn.net/kwu_ganymede/article/details/52040392?depth_1-utm_source=d
 https://www.cnblogs.com/itboys/p/8312894.html			Spark2.0机器学习系列之3：决策树
 
 
+https://blog.csdn.net/lsshlsw/article/details/45174391 Spark朴素贝叶斯(naiveBayes)
 
 
 
 
+https://github.com/apache/spark/tree/branch-1.5/data/mllib		spark-mllib示例数据源
+
+https://msd.misuland.com/pd/2884250137616453172			朴素贝叶斯算法+Spark MLlib代码Demo
+https://blog.csdn.net/weixin_45516016/article/details/100147631		机器学习番外篇—朴素贝叶斯三种模型（多项式，高斯，伯努利）
 
 
-
-
+https://www.cnblogs.com/abcdwxc/p/9837349.html  K均值（K-means）算法
+https://www.cnblogs.com/mstk/p/7151943.html			Spark机器学习(7)：KMenas算法
+https://www.cnblogs.com/mstk/p/7124148.html			不可行，Spark机器学习(5)：SVM算法
+https://www.jianshu.com/p/a05f982b71fb		可行，使用Spark ML进行数据分析
 
 	
