@@ -121,7 +121,10 @@ object UserProfile {
       val province = data._2._2._1
       val city = data._2._2._2
       ((userID), (itemID,time, keywords, score, province, city))
+
+      // 目的：将一个用户的数据，集中存储到hbase中
     }).groupByKey().foreachPartition(partition => {
+      // 进行外部存储时，尽量使用foreachPartition，节省连接资源
       for(row <- partition) {
         val userID = row._1
         val profiles = row._2
