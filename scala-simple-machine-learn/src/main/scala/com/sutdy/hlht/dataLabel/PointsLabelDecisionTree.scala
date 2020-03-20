@@ -62,6 +62,8 @@ object PointsLabelDecisionTree {
 
     //打印树的判断值
     println("Learned classification tree model:\n" + model.toDebugString)
+
+    session.close()
   }
 
 }
