@@ -13,7 +13,36 @@ import scala.collection.mutable.ListBuffer
   * 内容召回
   */
 object ContentRecall {
+"""
+1、user_action表数据文件：D:\resource\机器学习\推荐系统06-Flume实时采集数据及提取关键词20190803_tmp.csv
+示例：cd38023850,124078,685,2019-08-03 18:56:38,873
+sn STRING comment "sn",
+item_id INT comment "item_id",
+duration BIGINT comment "duration",
+time String comment "time",
+position BIGINT comment "position"
+2、item_info表数据文件：D:\data\msb\RecommenderProgram\item_info-10.txt
+示例：157781	2012-12-18 12:40:07.0	1991-07-01T00:00:00	一条狗的使命2	Miguel Bose - Como Un Lobo/Miguel Bose - Como Un Lobo		Miguel Bose		216	music	欧美	英语	2	false
+id BIGINT comment "item unique key",
+create_date String comment "create date",
+air_date String comment "air_date",
+title String comment "title",
+name String comment "name",
+desc String comment "desc",
+keywords String comment "keywords",
+focus String comment "focus",
+length BIGINT comment "length",
+content_model String comment "content_model",
+area String comment "area",
+language String comment "language",
+quality String comment "quality",
+is_3d String comment "is_3d"
+3、hbase.table = history_recall表
+userID,
+4、hbase.table = recall表
 
+
+"""
   def main(args: Array[String]): Unit = {
     val session = SparkSessionBase.createSparkSession()
     val df = session.sql("SELECT a.sn, a.item_id,a.duration,b.length " +
@@ -40,8 +69,8 @@ object ContentRecall {
     val table = PropertiesUtils.getProp("similar.hbase.table")
     val conf = HBaseUtil.getConf(table)
 
-    var hbaseRdd = session.sparkContext.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    var similarPro = hbaseRdd.flatMap(data => {
+    var hbaseRdd:RDD[(ImmutableBytesWritable,Result)] = session.sparkContext.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
+    var similarPro:RDD[(Int,Int)] = hbaseRdd.flatMap(data => {
       val list = new ListBuffer[(Int,Int)]()
       val result = data._2
       for(rowKv <- result.rawCells()) {
