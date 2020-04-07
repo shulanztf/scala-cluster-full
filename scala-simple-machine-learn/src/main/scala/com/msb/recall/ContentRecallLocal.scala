@@ -5,6 +5,8 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
+import scala.collection.mutable.ListBuffer
+
 /**
   * 内容召回
   */
@@ -62,7 +64,26 @@ userID,
     val df:DataFrame = session.sql("SELECT a.sn, a.item_id,a.duration,b.length " +
       "FROM user_action a " +
       "JOIN item_info b ON a.item_id = b.id where a.sn != 'unknown' ")
-    df.show(10,truncate = false)// 数据显示，不折行
+//    df.show(10,truncate = false)// 数据显示，不折行
+
+    val itemID2userID:RDD[(Int, String)] = df.rdd.flatMap(row => {
+      val list = new ListBuffer[(Int, String)]()
+      val userID = row.getAs[String]("sn")
+      println(userID)
+      val itemID = row.getAs[Int]("item_id")
+      val duration = row.getAs[Long]("duration")
+      val length = row.getAs[Long]("length")
+
+      if (duration < length) { //观看时长超过阈值，放入推荐数据中
+        val scalaDuration = (duration * 1.0) / length
+        if (scalaDuration > 0.1) {
+          list.+=((itemID, userID))
+        }
+      }
+      list.iterator
+    }).distinct()//用户可能会点击这个节目N多次，那么在计算内容召回的时候，应该去重，不然内容召回表中会有大量重复数据
+
+//    TODO,hbase表program_similar，数据模型待确认
 
     session.close()
   }
