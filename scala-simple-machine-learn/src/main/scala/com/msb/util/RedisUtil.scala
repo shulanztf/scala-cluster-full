@@ -26,4 +26,27 @@ object RedisUtil {
       }
     }
   }
+
+  /**
+    * redis哈希结构存储
+    * @param dbIndex
+    * @param key
+    * @param field
+    * @param value
+    * @return
+    */
+  def insertValue(dbIndex:Int,key: String, field:String, value:String): Boolean = {
+    try {
+      val jedis = jedisPool.getResource
+      jedis.select(dbIndex)
+      jedis.hset(key,field,value)
+      jedis.close()
+      true
+    } catch {
+      case e: Exception => {
+        false
+      }
+    }
+  }
+
 }
