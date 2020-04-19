@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.ListBuffer
-import util.RedisUtil
 
 
 
